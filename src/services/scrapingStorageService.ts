@@ -1,4 +1,3 @@
-
 export interface ScrapedContent {
   id: string;
   url: string;
@@ -9,9 +8,11 @@ export interface ScrapedContent {
 }
 
 export class ScrapingStorageService {
-  private static readonly STORAGE_KEY = 'scraped_content';
+  private static readonly STORAGE_KEY = "scraped_content";
 
-  static saveScrapedContent(content: Omit<ScrapedContent, 'id' | 'timestamp'>): string {
+  static saveScrapedContent(
+    content: Omit<ScrapedContent, "id" | "timestamp">
+  ): string {
     const id = Date.now().toString();
     const scrapedContent: ScrapedContent = {
       ...content,
@@ -21,17 +22,29 @@ export class ScrapingStorageService {
 
     const existingContent = this.getAllScrapedContent();
     existingContent.push(scrapedContent);
-    
+
+    // Log for debugging
+    console.log("Saving scraped content:", scrapedContent);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existingContent));
+
+    // Verify it was saved
+    const saved = this.getAllScrapedContent();
+    console.log("All scraped content after save:", saved);
+
     return id;
   }
 
   static getAllScrapedContent(): ScrapedContent[] {
     const stored = localStorage.getItem(this.STORAGE_KEY);
     if (!stored) return [];
-    
+
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Convert timestamp strings back to Date objects
+      return parsed.map((item: any) => ({
+        ...item,
+        timestamp: new Date(item.timestamp),
+      }));
     } catch {
       return [];
     }
@@ -39,12 +52,12 @@ export class ScrapingStorageService {
 
   static getScrapedContentById(id: string): ScrapedContent | null {
     const allContent = this.getAllScrapedContent();
-    return allContent.find(content => content.id === id) || null;
+    return allContent.find((content) => content.id === id) || null;
   }
 
   static deleteScrapedContent(id: string): void {
     const allContent = this.getAllScrapedContent();
-    const filtered = allContent.filter(content => content.id !== id);
+    const filtered = allContent.filter((content) => content.id !== id);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
   }
 

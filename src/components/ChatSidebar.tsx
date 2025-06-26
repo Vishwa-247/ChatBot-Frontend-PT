@@ -60,7 +60,7 @@ export default function ChatSidebar() {
       <div className="p-2 mt-1">
         <div className="flex items-center justify-between px-3 py-1">
           <h2 className="text-sm font-medium">Models</h2>
-          <ModelInfo />
+          {/* <ModelInfo /> */}
         </div>
         <ModelSelector />
       </div>
@@ -77,7 +77,7 @@ export default function ChatSidebar() {
       </div>
       
       <div className="p-3 border-t flex items-center justify-between bg-sidebar-accent/5 border-sidebar-border/30 rounded-b-xl">
-        <Button variant="ghost" size="sm" onClick={handleHomeClick} className="font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground mx-0 text-sm">
+        <Button variant="ghost" size="sm" onClick={handleHomeClick} className="font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground mx-0 text-md">
           🏠 Home
         </Button>
         <ThemeSelector />

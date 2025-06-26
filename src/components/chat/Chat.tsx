@@ -1,15 +1,14 @@
-
-import { useEffect, useState } from "react";
 import ChatHeader from "@/components/ChatHeader";
 import ChatInput from "@/components/ChatInput";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useChat } from "@/contexts/ChatContext";
 import { useChatActions } from "@/hooks/useChatActions";
+import { useEffect, useState } from "react";
 import ChatMessageList from "./ChatMessageList";
 import EmptyChat from "./EmptyChat";
-import { useChat } from "@/contexts/ChatContext";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Chat() {
-  const { isInitialLoading, currentModel } = useChat();
+  const { isInitialLoading, currentModel, updateMessage } = useChat();
   const [rewriteMessage, setRewriteMessage] = useState<string>("");
   const {
     currentChatId,
@@ -23,15 +22,15 @@ export default function Chat() {
     handleSaveSystemPrompt,
     handleSendMessage,
     isLoading,
-    getSystemPrompt
+    getSystemPrompt,
   } = useChatActions();
-  
+
   // Show system prompt input when starting a new chat
   useEffect(() => {
     if (!currentChatId || (currentChat && currentChat.messages.length === 0)) {
       setShowSystemPrompt(true);
     }
-    
+
     // Load system prompt if available
     if (currentChatId) {
       const prompt = getSystemPrompt(currentChatId);
@@ -41,8 +40,14 @@ export default function Chat() {
         setSystemPrompt("");
       }
     }
-  }, [currentChatId, currentChat, getSystemPrompt, setShowSystemPrompt, setSystemPrompt]);
-  
+  }, [
+    currentChatId,
+    currentChat,
+    getSystemPrompt,
+    setShowSystemPrompt,
+    setSystemPrompt,
+  ]);
+
   // Enhanced send handler for system prompt workflow
   const handleSendWithSystemPrompt = (content: string, files?: File[]) => {
     handleSendMessage(content, files);
@@ -57,18 +62,28 @@ export default function Chat() {
     setRewriteMessage("");
   };
 
-  // Handle regeneration
+  // Handle regeneration - replace the last AI message instead of creating new one
   const handleRegenerate = (messageIndex: number) => {
     if (!currentChat || !currentChatId) return;
-    
+
     // Find the user message that prompted this AI response
     const userMessage = currentChat.messages[messageIndex - 1];
     if (userMessage && userMessage.role === "user") {
-      // Resend the user message to generate a new response
-      handleSendMessage(userMessage.content);
+      // Mark the AI message for replacement by setting a flag
+      const aiMessage = currentChat.messages[messageIndex];
+      if (aiMessage && aiMessage.role === "assistant") {
+        // Update the AI message to show it's being regenerated
+        updateMessage(currentChatId, messageIndex, {
+          ...aiMessage,
+          content: "🔄 Regenerating response...",
+        });
+
+        // Resend the user message to generate a new response
+        handleSendMessage(userMessage.content);
+      }
     }
   };
-  
+
   // Show loading skeleton while initial data loads
   if (isInitialLoading) {
     return (
@@ -87,7 +102,7 @@ export default function Chat() {
       </div>
     );
   }
-  
+
   if (!currentChatId) {
     return (
       <EmptyChat
@@ -104,7 +119,7 @@ export default function Chat() {
   return (
     <div className="flex h-screen flex-col">
       <ChatHeader />
-      
+
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <ChatMessageList
           messages={currentChat?.messages || []}
@@ -120,12 +135,13 @@ export default function Chat() {
           onRegenerate={handleRegenerate}
         />
       </div>
-      
-      <ChatInput 
-        onSend={handleSendWithSystemPrompt} 
+
+      <ChatInput
+        onSend={handleSendWithSystemPrompt}
         disabled={isLoading}
         rewriteMessage={rewriteMessage}
         onRewriteComplete={handleRewriteComplete}
+        chatId={currentChatId}
       />
     </div>
   );

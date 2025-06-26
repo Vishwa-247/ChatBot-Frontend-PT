@@ -1,9 +1,8 @@
-
-export type ModelType = 'phi3:mini' | 'gemini-2.0-flash' | 'groq-llama';
+export type ModelType = "phi3:mini" | "gemini-2.0-flash" | "groq-llama";
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
   model?: string;
@@ -26,7 +25,15 @@ export interface ChatContextType {
   setCurrentModel: (model: ModelType) => void;
   createChat: (model: ModelType, systemPrompt?: string) => void;
   selectChat: (id: string) => void;
-  addMessage: (chatId: string, message: Omit<Message, 'id' | 'timestamp'>) => void;
+  addMessage: (
+    chatId: string,
+    message: Omit<Message, "id" | "timestamp">
+  ) => void;
+  updateMessage: (
+    chatId: string,
+    messageIndex: number,
+    updatedMessage: Message
+  ) => void;
   deleteChat: (id: string) => Promise<void>;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -34,3 +41,4 @@ export interface ChatContextType {
   getSystemPrompt: (chatId: string) => string | undefined;
   isInitialLoading?: boolean;
 }
+w

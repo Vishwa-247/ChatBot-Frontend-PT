@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { Menu, Settings } from "lucide-react";
+import { Menu } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import { useChat } from "@/contexts/ChatContext";
 import SystemVariablesDialog from "./SystemVariablesDialog";
@@ -39,10 +39,10 @@ export default function ChatHeader() {
           />
         )}
         <ThemeSelector />
-        <Button variant="ghost" size="icon">
+        {/* <Button variant="ghost" size="icon">
           <Settings className="h-5 w-5" />
           <span className="sr-only">Settings</span>
-        </Button>
+        </Button> */}
       </div>
     </header>
   );
